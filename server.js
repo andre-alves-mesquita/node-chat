@@ -26,6 +26,7 @@ app.get("/", function (req, res) {
   res.render("index.html");
 });
 let messages = [];
+const port = process.env.PORT || 3000;
 
 app.post("/api/resposta", function (req, res) {
   console.log(req.body);
@@ -55,4 +56,6 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(3000);
+httpServer.listen(port, () => {
+  console.log("Aplicação rodando na porta 3000");
+});
