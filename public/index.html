@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node Socket.io</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/4.4.0/socket.io.min.js"
+        integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body>
+
+    <form id="chat">
+        <input type="text" name="username" placeholder="Digite seu nome">
+        <div class="messages" style="overflow:auto; "></div>
+        <input type="text" name="message" placeholder="Digite sua mensagem">
+        <button type="submit">Enviar</button>
+    </form>
+
+    <script type="text/javascript">
+        const socket = io("http://localhost:3000");
+
+        function renderMessage(message) {
+
+            $('.messages').append('<div class="message"><strong>' + message.author + '</strong>: ' + message.message + '</div>');
+        }
+
+        socket.on('previousMessages', function (messages) {
+            for (message of messages) {
+                renderMessage(message);
+            }
+        });
+
+        socket.on('receivedMessage', function (message) {
+            renderMessage(message);
+        });
+
+        socket.on('wppMessage', function (message) {
+            renderMessage(message);
+        });
+
+        $('#chat').submit(function (event) {
+            event.preventDefault();
+
+            var author = $('input[name=username]').val();
+            var message = $('input[name=message]').val();
+
+            if (author.length && message.length) {
+                var messageObject = {
+                    author: author,
+                    message: message,
+                }
+
+
+                renderMessage(messageObject);
+                socket.emit('sendMessage', messageObject);
+            }
+            var receiver = '';
+            var session = 'teste';
+            var service = 'sendMessage';
+
+            var solicitacaoObjeto = {
+                author: author,
+                message: message,
+                receiver: '',
+                session: 'teste',
+                service: 'sendMessage',
+            }
+
+            /*
+            $.post("http://localhost:3000/api/sendMessage", `author=${author}1&message=${message}2&session=${session}3&receiver=${receiver}&service=${service}`, function (data) {
+                console.log(data);
+            });
+            */
+
+
+            $.ajax({
+                url: "http://localhost:3000/api/sendMessage",
+                type: "POST",
+                crossDomain: true,
+                contentType: 'application/json',
+                data: JSON.stringify(solicitacaoObjeto),
+                //dataType: "json",
+                success: function (response) {
+
+                    alert(response);
+                },
+                error: function (xhr, status) {
+                    alert("error");
+                }
+            });
+        });
+
+    </script>
+</body>
+
+</html>
